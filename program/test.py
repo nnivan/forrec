@@ -29,7 +29,6 @@ child.sendline("sudo su")
 print child.before
 
 child.expect("root", timeout=None)
-child.sendline("apt-get update")
 
 print child.before
 
