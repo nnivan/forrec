@@ -2,6 +2,7 @@ import subprocess
 import os
 from subprocess import call
 
+
 data = subprocess.check_output(['dpkg', '-l']);
 
 data = data.splitlines();
@@ -21,9 +22,20 @@ if not os.path.exists(directory):
 
 os.chdir(directory);
 
-print os.getcwd()
-
-call(["vagrant","init","ubuntu/xenial64"])
+#call(["vagrant","init","ubuntu/xenial64"])
 call(["vagrant","up"])
-call(["vagrant","ssh"])
-call(["touch","test.txt"])
+#wtf I do now??? - #call(["vagrant","ssh"])
+
+import pexpect
+
+child = pexpect.spawn("vagrant ssh")
+child.expect("ubuntu")
+child.sendline("sudo su")
+child.expect("root")
+child.sendline("exit")
+child.expect("ubuntu")
+child.sendline("touch asdf.ivan")
+child.expect("ubuntu")
+child.sendline("exit")
+
+call(["vagrant","halt"])
