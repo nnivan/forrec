@@ -45,4 +45,18 @@ for file in files_vagrant:
 cksums_pc.sort(key=lambda x: x[2])
 cksums_vagrant.sort(key=lambda x: x[2])
 
-print cksums_pc,cksums_vagrant
+
+print "Vagrant checksums for /bin"
+for cksum in cksums_vagrant:
+	b = 'nf'
+	for i in cksums_pc:
+		if i[2] == cksum[2]:
+			b = 'wr'
+		if i == cksum:
+			b = 'ok'
+	if b == 'nf':
+		print '\033[94m' + '[' + b + '] ' + '\033[0m' + cksum[2]
+	if b == 'ok':
+		print '\033[92m' + '[' + b + '] ' + '\033[0m' + cksum[2]
+	if b == 'wr':
+		print '\033[91m' + '[' + b + '] ' + '\033[0m' + cksum[2]
