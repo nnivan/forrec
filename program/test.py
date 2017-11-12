@@ -9,11 +9,6 @@ data = data.splitlines();
 
 del data[0:5]
 
-for line in data:
-	line = line.split()
-	line = line[1] + '=' + line[2]
-	print line
-
 directory = os.getcwd()
 directory = directory + "/vagrant"
 
@@ -29,13 +24,24 @@ call(["vagrant","up"])
 import pexpect
 
 child = pexpect.spawn("vagrant ssh")
-child.expect("ubuntu")
+child.expect("ubuntu@ubuntu-xenial")
 child.sendline("sudo su")
-child.expect("root")
-child.sendline("exit")
-child.expect("ubuntu")
-child.sendline("touch asdf.ivan")
-child.expect("ubuntu")
+print child.before
+
+child.expect("root", timeout=None)
+child.sendline("apt-get update")
+
+print child.before
+
+for line in data:
+	line = line.split()
+	line = line[1] + '=' + line[2]
+	child.expect("root", timeout=None)
+	print "sudo apt-get install " + line + " -y"
+	child.sendline("apt-get install " + line + " -y")
+	print child.before
+
+child.expect("ubuntu", timeout=None)
 child.sendline("exit")
 
 call(["vagrant","halt"])
