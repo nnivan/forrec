@@ -1,6 +1,7 @@
 import subprocess 
 import os
 from subprocess import call
+import pexpect
 
 
 data = subprocess.check_output(['dpkg', '-l']);
@@ -21,7 +22,6 @@ os.chdir(directory);
 call(["vagrant","up"])
 #wtf I do now??? - #call(["vagrant","ssh"])
 
-import pexpect
 
 child = pexpect.spawn("vagrant ssh")
 child.expect("ubuntu@ubuntu-xenial")
