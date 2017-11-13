@@ -21,6 +21,7 @@ directory = directory + "/vagrant"
 os.chdir(directory);
 
 #call(["vagrant","up"])
+call(["vagrant","up"])
 
 child = pexpect.spawn("vagrant ssh")
 

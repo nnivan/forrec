@@ -3,7 +3,6 @@ import os
 from subprocess import call
 import pexpect
 
-
 data = subprocess.check_output(['dpkg', '-l']);
 
 data = data.splitlines();
