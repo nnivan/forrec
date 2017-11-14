@@ -1,19 +1,19 @@
 import subprocess 
 import os
 from subprocess import call
+import pexpect
 
-box = "ubuntu/xenial64"
-synced_folder = "/home/ivan/Documents/lh_project2018/hostrootfolder"
+const_box = "ubuntu/xenial64"
+const_synced_folder = "/home/ivan/Documents/lh_project2018/hostrootfolder"
 
 directory = os.getcwd()
-directory = directory + "/vagrant_vm"
 
-if not os.path.exists(directory):
-    os.makedirs(directory)
+if not os.path.exists(directory + "/vagrant_vm"):
+    os.makedirs(directory + "/vagrant_vm")
 
-os.chdir(directory);
+os.chdir(directory + "/vagrant_vm");
 
-call(["vagrant","init",box])
+call(["vagrant","init",const_box])
 
 myfile = open('Vagrantfile', 'r')
 data = myfile.read().split('\n')
@@ -22,7 +22,7 @@ print data
 
 
 data[-2] = ""
-data[-1] = "\tconfig.vm.synced_folder \"" + synced_folder + "\"" + " , \"/analyse\""
+data[-1] = "\tconfig.vm.synced_folder \"" + const_synced_folder + "\"" + " , \"/analyse\""
 data.append("")
 data.append("end")
 data.append("")
@@ -34,4 +34,7 @@ for line in data:
 myfile.close()
 
 call(["vagrant","up"])
+
+os.chdir(directory);
+call(["python", directory + "/analyse_vagrant.py"])
 
