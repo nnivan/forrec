@@ -36,5 +36,5 @@ myfile.close()
 call(["vagrant","up"])
 
 os.chdir(directory);
-call(["python", directory + "/analyse_vagrant.py"])
+call(["python", directory + "/install_packets_vagrant.py"])
 
