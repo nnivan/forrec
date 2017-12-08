@@ -18,5 +18,6 @@ setup(name='ForRec',
       long_description=read('README.md'),
       url='https://github.com/nnivan/lh_project2018/',
       install_requires=['pexpect'],
+      scripts=['scripts/forrec.py'],
       packages=['forrec'],
      )

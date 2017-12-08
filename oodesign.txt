@@ -1,0 +1,45 @@
+Class OS:
+	package_list = []
+	name=""
+	vm
+	get_packages()
+	set_packages()
+	get_os_string()
+	calculate_checksums()
+	build()
+	#from_directory()
+	static create_from_directory()
+	analyze_differences() -> 
+[
+	- missing file
+	+ extra file
+	! different text file:
+	<<< DIFF
+	>>>
+	! 
+]
+
+
+Class VM:
+	create(os_name)
+	popen()
+	download(filename)
+
+def main():
+	target_vm_dir = sys.argv[1]
+	diff_output_file = sys.argv[2]
+	vm_type = sys.argv[3]
+	target_os = OS.create_from_directory(target_vm_dir)
+	target_os_string = target_os.get_os_string()
+	target_packages = target_os.get_packages()
+	vm = VM(vm_type)
+	vm.create(target_os_string)
+	reconstructed_os = new OS(vm)
+	reconstructed_os.set_packages(target_packages)
+	diffs = reconstructed_os.analyze_differences(target_os)
+	sys.write_to_file(diffs, diff_output_file)
+
+Inheritance + polymorphism
+
+os_instance.list_packages() -> dpkg --get-selections
+		-> yum listinstalled
