@@ -15,22 +15,4 @@ os.chdir(directory + "/vagrant_vm");
 
 call(["vagrant","init",const_box])
 
-# myfile = open('Vagrantfile', 'r')
-# data = myfile.read().split('\n')
-# 
-# print data
-# 
-# 
-# data[-2] = ""
-# data[-1] = "\tconfig.vm.synced_folder \"" + const_synced_folder + "\"" + " , \"/analyse\""
-# data.append("")
-# data.append("end")
-# data.append("")
-# 
-# myfile = open('Vagrantfile', 'w')
-# for line in data:
-#   myfile.write("%s\n" % line)
-# 
-# myfile.close()
-
 call(["vagrant","up"])

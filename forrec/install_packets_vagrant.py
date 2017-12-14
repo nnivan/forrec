@@ -11,44 +11,39 @@ directory = directory + "/vagrant_vm"
 
 os.chdir(directory);
 
-
-# child = pexpect.spawn("vagrant ssh", timeout=None)
-# child.expect("ubuntu-xenial", timeout=None)
-# child.sendline("cd /analyse")
-# child.expect("ubuntu-xenial", timeout=None)
-# child.sendline("sudo chroot .")
-# child.expect("root@ubuntu-xenial", timeout=None)
-# child.logfile = open("python_vagrant.log", "w")
-# child.sendline("dpkg -l | cat")
-# child.expect("root@ubuntu-xenial", timeout=None)
-
 data = subprocess.check_output(["dpkg", "-l", "--root=" + const_synced_folder])
 
 data = data.splitlines()
 
 del data[0:5]
 
-# datafile = open('python_vagrant.log', 'r')
-# data=datafile.read()
-# datafile.close()
-
-print "*vagrant ssh*"
-
-child = pexpect.spawn("vagrant ssh", timeout=None)
-child.expect("ubuntu-xenial", timeout=None)
-child.sendline("cd /")
-child.expect("ubuntu-xenial", timeout=None)
-child.sendline("sudo su")
-child.expect("root@ubuntu-xenial", timeout=None)
+packets = ''
 
 for line in data:
 	
 	line = line.split()
 	line = line[1] + '=' + line[2]
-	print "\033[96msudo apt-get install " + line + " -y\033[0m"
-	
-	child.sendline("apt-get install " + line + " -y")
-	child.expect("root@ubuntu-xenial", timeout=None)
-	print child.before
+	packets = packets + line + ' '
+
+packets = packets.split();
+
+child = pexpect.spawn("vagrant ssh", timeout=None)
+child.expect("ubuntu-xenial", timeout=None)
+child.sendline("sudo su")
+child.expect("ubuntu-xenial", timeout=None)
+child.sendline("control=\"forrec - continue\"")
+child.expect("ubuntu-xenial", timeout=None)
+child.sendline("cd /")
+child.expect("ubuntu-xenial", timeout=None)
+
+for line in packets:
+	print "\033[96mapt-get install -y " + line +" << "+ "\033[0m"
+	child.sendline("apt-get install -y " + line + "; echo $control")
+	output = ""
+	while "forrec - continue" not in output:
+	    child.expect('\n')
+	    output = child.before
+	    print output
+
 
 print "\033[92m -Ready-"

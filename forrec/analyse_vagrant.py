@@ -6,27 +6,12 @@ import pexpect
 const_box = "ubuntu/xenial64"
 const_synced_folder = "/home/ivan/Documents/cpHostRootFolder/hostrootfolder"
 
-
-
 directory = os.getcwd()
 directory = directory + "/vagrant_vm"
 
 os.chdir(directory);
 
-# child = pexpect.spawn("vagrant ssh", timeout=None)
-# child.expect("ubuntu-xenial", timeout=None)
-# child.logfile = open("python_vagrant.log", "w")
-# child.sendline("find /analyse/bin /analyse/etc -type f 2>/dev/null | xargs cksum 2>/dev/null")
-# child.expect("ubuntu-xenial", timeout=None)
-# child.expect("ubuntu-xenial", timeout=None)
-# 
-# datafile = open('python_vagrant.log', 'r')
-# cksum_am=datafile.read()
-# print cksum_am
-# datafile.close()
-
-
-process = subprocess.Popen(["find", const_synced_folder+"/bin", const_synced_folder+"/etc", "-type", "f"],stdout=subprocess.PIPE)
+process = subprocess.Popen(["find", const_synced_folder+"/bin", const_synced_folder+"/boot", "-type", "f"],stdout=subprocess.PIPE)
 cksum_am = process.communicate()[0]
 
 cksum_am = cksum_am.splitlines();
@@ -40,10 +25,12 @@ cksum_am.sort(key=lambda x: x[2])
 
 child = pexpect.spawn("vagrant ssh", timeout=None)
 child.expect("ubuntu-xenial", timeout=None)
-child.sendline("sudo find /bin /etc -type f | xargs cksum > /vagrant/cksums_vagrant_virtual_machine.log")
-child.expect("ubuntu-xenial", timeout=None)
+child.sendline("control=\"forrec - continue\"")
+child.expect("forrec - continue", timeout=None)
+child.sendline("sudo find /bin /boot -type f -exec cksum \"{}\" + > /vagrant/checklist.txt ; echo $control")
+child.expect("forrec - continue", timeout=None)
 
-datafile = open(directory + "/cksums_vagrant_virtual_machine.log", 'r')
+datafile = open(directory + "/checklist.txt", 'r')
 cksum_vm=datafile.read()
 datafile.close()
 
