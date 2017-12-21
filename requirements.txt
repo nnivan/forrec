@@ -1,1 +1,3 @@
 pexpect
+python-vagrant
+paramiko
