@@ -21,6 +21,14 @@ def main():
     elif args.directory:
         dir = args.target
     analyzed_os = os.OS.create_from_directory(dir)
+    os_string = analyzed_os.fetch_os_string()
+    vm = VM(vm_type, vm_provider) # ("vagrant", "virtualbox")
+    vm.create(os_string)
+    reconstructed_os = OS.create_from_vm(vm)
+    reconstructed_os.set_packages(target_packages) # TODO: target_opts
+    #reconstructed_os.build()
+    diffs = reconstructed_os.analyze_differences(analyzed_os)
+    print diffs
 
 if __name__=="__main__":
     main()
