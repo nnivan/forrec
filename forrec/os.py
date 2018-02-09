@@ -111,7 +111,7 @@ class LinuxOS(OS):
         pout, perr = p.communicate()
 
         pout = pout.splitlines()[5:]
-        packages = [    ]
+        packages = []
         for i in pout:
             i = i.split()
             packages.append(i[1] + '=' + i[2])
@@ -125,5 +125,16 @@ class LinuxOS(OS):
     def build(self):
         pass
     
-    def analyze_differences(self, other_os):
-        pass
+    def analyze_differences(self, cksum_list):
+        for cksum_file in cksum_list:
+            sp_args = "cksum " + self.root_directory + cksum_file[2]
+            p = subprocess.Popen(sp_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, cwd=self.root_directory)
+            pout, perr = p.communicate()
+            pout = pout.split()
+            if pout == []:
+                print "[nf] - ", cksum_file[2]
+            elif pout[1] == cksum_file[1] and pout[0] == cksum_file[0]:
+                print "[ok] - ", cksum_file[2]
+            else:
+                print "[wr] - ", cksum_file[2]
+        

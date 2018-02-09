@@ -28,9 +28,19 @@ def main():
     virtual_os = vm.VM("vm_machine") # ("vagrant", "virtualbox")
     print "virtual_os:", virtual_os.vagrant
     target_packages = analyzed_os.extract_packages()
-    print "target_packages - ", len(target_packages)
-    virtual_os.install_packages(target_packages)
-    #virtual_os.create(os_string)
+    print "len target_packages: ", len(target_packages)
+
+    # virtual_os.create(os_string)
+    # print "target_packages - ", len(target_packages)
+    # virtual_os.install_packages(target_packages)
+
+    cksum_list = virtual_os.fetch_cksum(['/bin','/boot']);
+    print "len cksum_list", len(cksum_list);
+    analyzed_os.analyze_differences(cksum_list);
+
+
+    
+
     # reconstructed_os = OS.create_from_vm(virtual_os)
     # reconstructed_os.set_packages(target_packages) # TODO: target_opts
     # reconstructed_os.build()
