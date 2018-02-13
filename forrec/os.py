@@ -23,6 +23,14 @@ class OS:
     def set_packages(self, package_list):
         pass
     
+    @abstractmethod
+    def analyze_differences(self, other_os):
+        pass
+    
+    # @abstractmethod
+    # def build(self):
+    #     pass
+
     @staticmethod
     def _is_os_linux(directory):
         sp_args = "ls ./etc/*-release | wc -l"
@@ -46,16 +54,10 @@ class OS:
         raise NotImplementedError("Could not recognize the OS family type")
         
     @staticmethod
-    def create_from_vm(vm):
-        pass
-
-    @abstractmethod
-    def build(self):
-        pass
-    
-    @abstractmethod
-    def analyze_differences(self, other_os):
-        pass
+    def create_from_vm(directory,vm):
+        virtual_machine = LinuxOS(directory)
+        virtual_machine.set_packages = vm.install_packages
+        return virtual_machine
 
 
 class LinuxOS(OS):
@@ -121,9 +123,6 @@ class LinuxOS(OS):
     # Installs/uninstalls packages from the OS until the current packages match package_list
     def set_packages(self, package_list):
         pass
-
-    def build(self):
-        pass
     
     def analyze_differences(self, cksum_list):
         for cksum_file in cksum_list:
@@ -137,4 +136,3 @@ class LinuxOS(OS):
                 print "[ok] - ", cksum_file[2]
             else:
                 print "[wr] - ", cksum_file[2]
-        

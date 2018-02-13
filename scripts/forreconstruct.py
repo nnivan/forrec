@@ -21,27 +21,31 @@ def main():
         return
     elif args.directory:
         dir = args.target
-    analyzed_os = os.OS.create_from_directory(dir)
-    print "analyzed_os:", analyzed_os.root_directory
-    os_string = analyzed_os.fetch_os_string()
-    print "os_string:", os_string
-    virtual_os = vm.VM("vm_machine") # ("vagrant", "virtualbox")
-    print "virtual_os:", virtual_os.vagrant
-    target_packages = analyzed_os.extract_packages()
-    print "len target_packages: ", len(target_packages)
 
-    # virtual_os.create(os_string)
-    # print "target_packages - ", len(target_packages)
-    # virtual_os.install_packages(target_packages)
+    analyzed_os = os.OS.create_from_directory(dir)
+    print "analyzed_os"
+    os_string = analyzed_os.fetch_os_string()
+    print "os_string"
+    target_packages = analyzed_os.extract_packages()
+    print "target_packages"
+
+    virtual_os = vm.VM("vm_machine")
+    print "virtual_os"
+    virtual_os.create(os_string)
+    print "virtual_os.create"
+    reconstructed_os = os.OS.create_from_vm("vm_machine",virtual_os) # virtual_os.create(os_string)
+    print "reconstructed_os"
+    reconstructed_os.set_packages(target_packages) # virtual_os.install_packages(target_packages)
+    print "reconstructed_os.set_packages"
 
     cksum_list = virtual_os.fetch_cksum(['/bin','/boot']);
-    print "len cksum_list", len(cksum_list);
+    print "cksum_list"
     analyzed_os.analyze_differences(cksum_list);
-
+    print "End"
 
     
 
-    # reconstructed_os = OS.create_from_vm(virtual_os)
+    # reconstructed_os = OS.create_from_vm("vm_machine"virtual_os)
     # reconstructed_os.set_packages(target_packages) # TODO: target_opts
     # reconstructed_os.build()
     # diffs = reconstructed_os.analyze_differences(analyzed_os)
