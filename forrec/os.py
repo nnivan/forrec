@@ -83,9 +83,13 @@ class LinuxOS(OS):
 
         if ID == 'debian':
             if VERSION_ID == '9':
-                 return 'stretch'
+                return 'stretch'
             elif VERSION_ID == '8':
                 return 'jessie'
+
+        if ID == 'ubuntu':
+            if VERSION_ID == '14.04':
+                return 'trusty'
 
         return VERSION_ID
 

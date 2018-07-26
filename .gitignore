@@ -1,6 +1,9 @@
 # Vagrant-specific
 .vagrant/
 
+# PyCharm-specific
+.idea/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

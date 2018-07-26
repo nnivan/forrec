@@ -4,6 +4,8 @@ from forrec import os
 from forrec import vm
 import argparse
 
+VAGRANT_VM_FOLEDER_NAME = vm_machine
+
 def _init_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument("target")
@@ -29,7 +31,7 @@ def main():
     target_packages = analyzed_os.extract_packages()
     print "target_packages"
 
-    virtual_os = vm.VM("vm_machine")
+    virtual_os = vm.VM(VAGRANT_VM_FOLEDER_NAME)
     print "virtual_os"
     virtual_os.create(os_string)
     print "virtual_os.create"
@@ -38,7 +40,7 @@ def main():
     reconstructed_os.set_packages(target_packages) # virtual_os.install_packages(target_packages)
     print "reconstructed_os.set_packages"
 
-    cksum_list = virtual_os.fetch_cksum(['/bin','/boot']);
+    cksum_list = virtual_os.fetch_cksum(['/usr/bin']);
     print "cksum_list"
     analyzed_os.analyze_differences(cksum_list);
     print "End"
