@@ -4,7 +4,8 @@ from forrec import os
 from forrec import vm
 import argparse
 
-VAGRANT_VM_FOLEDER_NAME = vm_machine
+VAGRANT_VM_FOLEDER_NAME = '.'
+FOLDERS_TO_CHECK = ['/usr/bin']
 
 def _init_parser():
     parser = argparse.ArgumentParser()
@@ -35,12 +36,12 @@ def main():
     print "virtual_os"
     virtual_os.create(os_string)
     print "virtual_os.create"
-    reconstructed_os = os.OS.create_from_vm("vm_machine",virtual_os) # virtual_os.create(os_string)
+    reconstructed_os = os.OS.create_from_vm("vm_machine", virtual_os) # virtual_os.create(os_string)
     print "reconstructed_os"
-    reconstructed_os.set_packages(target_packages) # virtual_os.install_packages(target_packages)
-    print "reconstructed_os.set_packages"
+    # reconstructed_os.set_packages(target_packages) # virtual_os.install_packages(target_packages)
+    # print "reconstructed_os.set_packages"
 
-    cksum_list = virtual_os.fetch_cksum(['/usr/bin']);
+    cksum_list = virtual_os.fetch_cksum(FOLDERS_TO_CHECK);
     print "cksum_list"
     analyzed_os.analyze_differences(cksum_list);
     print "End"

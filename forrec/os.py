@@ -135,8 +135,8 @@ class LinuxOS(OS):
             pout, perr = p.communicate()
             pout = pout.split()
             if pout == []:
-                print "[nf] - ", cksum_file[2]
+                print '\033[94m', "[nf] - ", cksum_file[2]
             elif pout[1] == cksum_file[1] and pout[0] == cksum_file[0]:
-                print "[ok] - ", cksum_file[2]
+                print '\033[92m', "[ok] - ", cksum_file[2]
             else:
-                print "[wr] - ", cksum_file[2]
+                print '\033[91m', "[wr] - ", cksum_file[2]
