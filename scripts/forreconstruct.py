@@ -36,15 +36,15 @@ def main():
     print "virtual_os"
     virtual_os.create(os_string)
     print "virtual_os.create"
-    reconstructed_os = os.OS.create_from_vm("vm_machine", virtual_os) # virtual_os.create(os_string)
+    reconstructed_os = os.OS.create_from_vm(VAGRANT_VM_FOLEDER_NAME, virtual_os) # virtual_os.create(os_string)
     print "reconstructed_os"
-    #reconstructed_os.set_packages(target_packages) # virtual_os.install_packages(target_packages)
+    reconstructed_os.set_packages(target_packages) # virtual_os.install_packages(target_packages)
     print "reconstructed_os.set_packages"
 
     cksum_list = virtual_os.fetch_cksum(FOLDERS_TO_CHECK)
     print "cksum_list"
     analyzed_os.analyze_differences(cksum_list)
-    print "End"
+    print "End\n"
 
     # TODO: remove this later:
     virtual_os.client.close()

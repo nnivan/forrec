@@ -129,14 +129,28 @@ class LinuxOS(OS):
         pass
     
     def analyze_differences(self, cksum_list):
+
+        nf = 0
+        ok = 0
+        wr = 0
+
         for cksum_file in cksum_list:
             sp_args = "cksum " + self.root_directory + cksum_file[2]
             p = subprocess.Popen(sp_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, cwd=self.root_directory)
             pout, perr = p.communicate()
             pout = pout.split()
             if pout == []:
-                print '\033[94m', "[nf] - ", cksum_file[2]
+                print '\033[94m', "[nf] -", cksum_file[2]
+                nf += 1
             elif pout[1] == cksum_file[1] and pout[0] == cksum_file[0]:
-                print '\033[92m', "[ok] - ", cksum_file[2]
+                print '\033[92m', "[ok] -", cksum_file[2]
+                ok += 1
             else:
-                print '\033[91m', "[wr] - ", cksum_file[2]
+                print '\033[91m', "[wr] -", cksum_file[2]
+                wr += 1
+
+        print '\033[0m', "\n Statistics: "
+        print '\033[0m', "Total", '\033[94m', "[nf] =", nf
+        print '\033[0m', "Total", '\033[92m', "[ok] =", ok
+        print '\033[0m', "Total", '\033[91m', "[wr] =", wr
+        print '\033[0m'
