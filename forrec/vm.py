@@ -65,7 +65,9 @@ class VM:
             cksum_folder = cksum_folder.splitlines()
             for i in cksum_folder:
                 cksum_list.append(i.split())
-                # print i.split()
+
+        cksum_list.sort(key=lambda file: file[2])
+
         return cksum_list
 
     def popen(self):

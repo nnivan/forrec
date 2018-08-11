@@ -31,6 +31,8 @@ def main():
     print "os_string"
     target_packages = analyzed_os.extract_packages()
     print "target_packages"
+    cksum_list_analyzed_os = analyzed_os.fetch_cksum(FOLDERS_TO_CHECK)
+    # print "cksum_list_analyzed_os:\n", cksum_list_analyzed_os
 
     virtual_os = vm.VM(VAGRANT_VM_FOLEDER_NAME)
     print "virtual_os"
@@ -43,11 +45,15 @@ def main():
 
     cksum_list = virtual_os.fetch_cksum(FOLDERS_TO_CHECK)
     print "cksum_list"
-    analyzed_os.analyze_differences(cksum_list)
-    print "End\n"
+    analyzed_os.analyze_differences(cksum_list_analyzed_os, cksum_list)
+
+
 
     # TODO: remove this later:
-    virtual_os.client.close()
+    # virtual_os.client.close()
+
+    print "End\n"
+
 
     # reconstructed_os = OS.create_from_vm("vm_machine"virtual_os)
     # reconstructed_os.set_packages(target_packages) # TODO: target_opts

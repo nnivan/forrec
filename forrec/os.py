@@ -22,10 +22,11 @@ class OS:
     @abstractmethod
     def set_packages(self, package_list):
         pass
-    
-    @abstractmethod
-    def analyze_differences(self, other_os):
-        pass
+
+    # TODO: change analyze diff func, prob static func
+    # @abstractmethod
+    # def analyze_differences(self, other_os):
+    #     pass
     
     # @abstractmethod
     # def build(self):
@@ -127,30 +128,115 @@ class LinuxOS(OS):
     # Installs/uninstalls packages from the OS until the current packages match package_list
     def set_packages(self, package_list):
         pass
-    
-    def analyze_differences(self, cksum_list):
 
-        nf = 0
-        ok = 0
-        wr = 0
+    def fetch_cksum(self, folders_list):
 
-        for cksum_file in cksum_list:
-            sp_args = "cksum " + self.root_directory + cksum_file[2]
-            p = subprocess.Popen(sp_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, cwd=self.root_directory)
+        cksum_list = []
+
+        for folder in folders_list:
+
+            sp_args = "find " + self.root_directory + folder + " -type f -exec cksum {} \;"
+            p = subprocess.Popen(sp_args, stdout=subprocess.PIPE, shell=True, cwd=self.root_directory)
             pout, perr = p.communicate()
-            pout = pout.split()
-            if pout == []:
-                print '\033[94m', "[nf] -", cksum_file[2]
-                nf += 1
-            elif pout[1] == cksum_file[1] and pout[0] == cksum_file[0]:
-                print '\033[92m', "[ok] -", cksum_file[2]
-                ok += 1
+
+            cksum_folder = pout.splitlines()
+
+            for i in cksum_folder:
+                i = i.split()
+                i[2] = i[2][len(self.root_directory):]
+                cksum_list.append(i)
+
+            cksum_list.sort(key=lambda file: file[2])
+
+        return cksum_list
+
+    def analyze_differences(self, list1, list2):
+
+        ex = ms = ok = wr = 0
+
+        i = x = 0
+        while i < len(list1) and x < len(list2):
+            if list1[i][2] == list2[x][2]:
+                if list1[i][1] == list2[x][1] and list1[i][0] == list2[x][0]:
+                    print '\033[92m', "[ok] -", list1[i][2]
+                    ok += 1
+                else:
+                    print '\033[91m', "[wr] -", list1[i][2]
+                    wr += 1
+                i += 1
+                x += 1
+            elif list1[i][2] < list2[x][2]:
+                print '\033[93m', "[ex] -", list1[i][2]
+                ex += 1
+                i += 1
             else:
-                print '\033[91m', "[wr] -", cksum_file[2]
-                wr += 1
+                print '\033[94m', "[ms] -", list2[x][2]
+                ms += 1
+                x += 1
+
+        while i < len(list1):
+            print '\033[93m', "[ex] -", list1[i][2]
+            ex += 1
+            i += 1
+
+        while x < len(list2):
+            print '\033[94m', "[ms] -", list2[x][2]
+            ms += 1
+            x += 1
 
         print '\033[0m', "\n Statistics: "
-        print '\033[0m', "Total", '\033[94m', "[nf] =", nf
-        print '\033[0m', "Total", '\033[92m', "[ok] =", ok
-        print '\033[0m', "Total", '\033[91m', "[wr] =", wr
+        print '\033[0m', "Total", '\033[92m' + "Okay      -", ok
+        print '\033[0m', "Total", '\033[91m' + "Wrong   -", wr
+        print '\033[0m', "Total", '\033[94m' + "Missing -", ms
+        print '\033[0m', "Total", '\033[93m' + "Extra   -", ex
         print '\033[0m'
+
+
+        #
+        # for cksum_file in cksum_list:
+        #     sp_args = "cksum " + self.root_directory + cksum_file[2]
+        #     p = subprocess.Popen(sp_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, cwd=self.root_directory)
+        #     pout, perr = p.communicate()
+        #     pout = pout.split()
+        #     if pout == []:
+        #         print '\033[94m', "[nf] -", cksum_file[2]
+        #         nf += 1
+        #     elif pout[1] == cksum_file[1] and pout[0] == cksum_file[0]:
+        #         print '\033[92m', "[ok] -", cksum_file[2]
+        #         ok += 1
+        #     else:
+        #         print '\033[91m', "[wr] -", cksum_file[2]
+        #         wr += 1
+        #
+        # print '\033[0m', "\n Statistics: "
+        # print '\033[0m', "Total", '\033[94m', "[nf] =", nf
+        # print '\033[0m', "Total", '\033[92m', "[ok] =", ok
+        # print '\033[0m', "Total", '\033[91m', "[wr] =", wr
+        # print '\033[0m'
+
+    # def analyze_differences(self, cksum_list):
+    #
+    #     nf = 0
+    #     ok = 0
+    #     wr = 0
+    #
+    #     for cksum_file in cksum_list:
+    #         sp_args = "cksum " + self.root_directory + cksum_file[2]
+    #         p = subprocess.Popen(sp_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, cwd=self.root_directory)
+    #         pout, perr = p.communicate()
+    #         pout = pout.split()
+    #         if pout == []:
+    #             print '\033[94m', "[nf] -", cksum_file[2]
+    #             nf += 1
+    #         elif pout[1] == cksum_file[1] and pout[0] == cksum_file[0]:
+    #             print '\033[92m', "[ok] -", cksum_file[2]
+    #             ok += 1
+    #         else:
+    #             print '\033[91m', "[wr] -", cksum_file[2]
+    #             wr += 1
+    #
+    #     print '\033[0m', "\n Statistics: "
+    #     print '\033[0m', "Total", '\033[94m', "[nf] =", nf
+    #     print '\033[0m', "Total", '\033[92m', "[ok] =", ok
+    #     print '\033[0m', "Total", '\033[91m', "[wr] =", wr
+    #     print '\033[0m'
