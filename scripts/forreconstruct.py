@@ -45,7 +45,7 @@ def main():
 
     cksum_list = virtual_os.fetch_cksum(FOLDERS_TO_CHECK)
     print "cksum_list"
-    analyzed_os.analyze_differences(cksum_list_analyzed_os, cksum_list)
+    os.OS.analyze_differences(cksum_list_analyzed_os, cksum_list)
 
 
 

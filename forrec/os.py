@@ -23,15 +23,6 @@ class OS:
     def set_packages(self, package_list):
         pass
 
-    # TODO: change analyze diff func, prob static func
-    # @abstractmethod
-    # def analyze_differences(self, other_os):
-    #     pass
-    
-    # @abstractmethod
-    # def build(self):
-    #     pass
-
     @staticmethod
     def _is_os_linux(directory):
         sp_args = "ls ./etc/*-release | wc -l"
@@ -44,8 +35,11 @@ class OS:
             pass
         # TODO: Add more methods of recognizing Linux from binary layout
         return False
-    
-    # Create an OS instasnce from a directory
+
+    # @abstractmethod
+    # def build(self):
+    #     pass
+
     @staticmethod
     def create_from_directory(directory):
         # Check for actual OS families
@@ -53,12 +47,58 @@ class OS:
             return LinuxOS._create_linux_from_directory(directory)
         # TODO: Check for other OS families - Windows, BSD, Mac, other Unices?
         raise NotImplementedError("Could not recognize the OS family type")
-        
+    
+    # Create an OS instasnce from a directory
     @staticmethod
     def create_from_vm(directory,vm):
         virtual_machine = LinuxOS(directory)
         virtual_machine.set_packages = vm.install_packages
         return virtual_machine
+
+    @staticmethod
+    def analyze_differences(list1, list2):
+
+        list1.sort(key=lambda file: file[2])
+        list2.sort(key=lambda file: file[2])
+
+        ex = ms = ok = wr = 0
+
+        i = x = 0
+        while i < len(list1) and x < len(list2):
+            if list1[i][2] == list2[x][2]:
+                if list1[i][1] == list2[x][1] and list1[i][0] == list2[x][0]:
+                    print '\033[92m', "[ok] -", list1[i][2]
+                    ok += 1
+                else:
+                    print '\033[91m', "[wr] -", list1[i][2]
+                    wr += 1
+                i += 1
+                x += 1
+            elif list1[i][2] < list2[x][2]:
+                print '\033[93m', "[ex] -", list1[i][2]
+                ex += 1
+                i += 1
+            else:
+                print '\033[94m', "[ms] -", list2[x][2]
+                ms += 1
+                x += 1
+
+        while i < len(list1):
+            print '\033[93m', "[ex] -", list1[i][2]
+            ex += 1
+            i += 1
+
+        while x < len(list2):
+            print '\033[94m', "[ms] -", list2[x][2]
+            ms += 1
+            x += 1
+
+        print '\033[0m', "\n Statistics: "
+        print '\033[0m', "Total", '\033[92m' + "Okay    -", ok
+        print '\033[0m', "Total", '\033[91m' + "Wrong   -", wr
+        print '\033[0m', "Total", '\033[94m' + "Missing -", ms
+        print '\033[0m', "Total", '\033[93m' + "Extra   -", ex
+        print '\033[0m'
 
 
 class LinuxOS(OS):
@@ -68,31 +108,6 @@ class LinuxOS(OS):
     @staticmethod
     def _create_linux_from_directory(directory):
         return LinuxOS(directory)
-
-    @staticmethod
-    def get_ID_from_release(release):
-        start_id = release.find("\nID=")
-        end_id = release.find("\n",start_id+4)
-        return release[start_id+4:end_id]
-
-    @staticmethod
-    def get_VERSION_ID_from_release_and_ID(release, ID):
-
-        start_version_id = release.find("\nVERSION_ID=")
-        end_version_id = release.find("\n",start_version_id+11)
-        VERSION_ID = release[start_version_id+13:end_version_id-1]
-
-        if ID == 'debian':
-            if VERSION_ID == '9':
-                return 'stretch'
-            elif VERSION_ID == '8':
-                return 'jessie'
-
-        if ID == 'ubuntu':
-            if VERSION_ID == '14.04':
-                return 'trusty'
-
-        return VERSION_ID
 
     # TODO
     @staticmethod
@@ -104,11 +119,23 @@ class LinuxOS(OS):
         p = subprocess.Popen(sp_args, stdout=subprocess.PIPE, shell=True, cwd=self.root_directory)
         pout, perr = p.communicate()
 
-        ID = self.get_ID_from_release(pout)
-        VERSION_ID = self.get_VERSION_ID_from_release_and_ID(pout, ID)
-        os_architecture = self.get_os_architecture()
+        release = pout
 
-        return ID + '/' + VERSION_ID + os_architecture
+        id_index = release.find("\nID=")
+        ID = release[id_index + 4:release.find("\n", id_index + 4)]
+
+        version_index = release.find("\nVERSION_ID=")
+        VERSION_ID = release[version_index + 13:release.find("\n", version_index + 11) - 1]
+
+        if ID == 'debian':
+            if VERSION_ID == '9':
+                return 'debian/stretch' + self.get_os_architecture()
+            elif VERSION_ID == '8':
+                return 'debian/jessie' + self.get_os_architecture()
+        elif ID == 'ubuntu':
+            if VERSION_ID == '14.04':
+                return 'ubuntu/trusty' + self.get_os_architecture()
+
  
     
     # Returns a list of installed packages on the OS
@@ -146,97 +173,4 @@ class LinuxOS(OS):
                 i[2] = i[2][len(self.root_directory):]
                 cksum_list.append(i)
 
-            cksum_list.sort(key=lambda file: file[2])
-
         return cksum_list
-
-    def analyze_differences(self, list1, list2):
-
-        ex = ms = ok = wr = 0
-
-        i = x = 0
-        while i < len(list1) and x < len(list2):
-            if list1[i][2] == list2[x][2]:
-                if list1[i][1] == list2[x][1] and list1[i][0] == list2[x][0]:
-                    print '\033[92m', "[ok] -", list1[i][2]
-                    ok += 1
-                else:
-                    print '\033[91m', "[wr] -", list1[i][2]
-                    wr += 1
-                i += 1
-                x += 1
-            elif list1[i][2] < list2[x][2]:
-                print '\033[93m', "[ex] -", list1[i][2]
-                ex += 1
-                i += 1
-            else:
-                print '\033[94m', "[ms] -", list2[x][2]
-                ms += 1
-                x += 1
-
-        while i < len(list1):
-            print '\033[93m', "[ex] -", list1[i][2]
-            ex += 1
-            i += 1
-
-        while x < len(list2):
-            print '\033[94m', "[ms] -", list2[x][2]
-            ms += 1
-            x += 1
-
-        print '\033[0m', "\n Statistics: "
-        print '\033[0m', "Total", '\033[92m' + "Okay      -", ok
-        print '\033[0m', "Total", '\033[91m' + "Wrong   -", wr
-        print '\033[0m', "Total", '\033[94m' + "Missing -", ms
-        print '\033[0m', "Total", '\033[93m' + "Extra   -", ex
-        print '\033[0m'
-
-
-        #
-        # for cksum_file in cksum_list:
-        #     sp_args = "cksum " + self.root_directory + cksum_file[2]
-        #     p = subprocess.Popen(sp_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, cwd=self.root_directory)
-        #     pout, perr = p.communicate()
-        #     pout = pout.split()
-        #     if pout == []:
-        #         print '\033[94m', "[nf] -", cksum_file[2]
-        #         nf += 1
-        #     elif pout[1] == cksum_file[1] and pout[0] == cksum_file[0]:
-        #         print '\033[92m', "[ok] -", cksum_file[2]
-        #         ok += 1
-        #     else:
-        #         print '\033[91m', "[wr] -", cksum_file[2]
-        #         wr += 1
-        #
-        # print '\033[0m', "\n Statistics: "
-        # print '\033[0m', "Total", '\033[94m', "[nf] =", nf
-        # print '\033[0m', "Total", '\033[92m', "[ok] =", ok
-        # print '\033[0m', "Total", '\033[91m', "[wr] =", wr
-        # print '\033[0m'
-
-    # def analyze_differences(self, cksum_list):
-    #
-    #     nf = 0
-    #     ok = 0
-    #     wr = 0
-    #
-    #     for cksum_file in cksum_list:
-    #         sp_args = "cksum " + self.root_directory + cksum_file[2]
-    #         p = subprocess.Popen(sp_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, cwd=self.root_directory)
-    #         pout, perr = p.communicate()
-    #         pout = pout.split()
-    #         if pout == []:
-    #             print '\033[94m', "[nf] -", cksum_file[2]
-    #             nf += 1
-    #         elif pout[1] == cksum_file[1] and pout[0] == cksum_file[0]:
-    #             print '\033[92m', "[ok] -", cksum_file[2]
-    #             ok += 1
-    #         else:
-    #             print '\033[91m', "[wr] -", cksum_file[2]
-    #             wr += 1
-    #
-    #     print '\033[0m', "\n Statistics: "
-    #     print '\033[0m', "Total", '\033[94m', "[nf] =", nf
-    #     print '\033[0m', "Total", '\033[92m', "[ok] =", ok
-    #     print '\033[0m', "Total", '\033[91m', "[wr] =", wr
-    #     print '\033[0m'

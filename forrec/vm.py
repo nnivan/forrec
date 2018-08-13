@@ -66,7 +66,6 @@ class VM:
             for i in cksum_folder:
                 cksum_list.append(i.split())
 
-        cksum_list.sort(key=lambda file: file[2])
 
         return cksum_list
 
