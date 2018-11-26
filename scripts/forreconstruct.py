@@ -2,6 +2,9 @@
 
 from forrec import os
 from forrec import vm
+from forrec.analysis import analyze_differences
+from forrec.analysis import print_differences
+from forrec.analysis import outfile_differences
 import argparse
 
 VAGRANT_VM_FOLEDER_NAME = '.'
@@ -16,6 +19,7 @@ def _init_parser():
     verb = parser.add_mutually_exclusive_group()
     verb.add_argument("-v", "--verbose", action="count", default=2)
     verb.add_argument("-q", "--quiet", action="count", default=0)
+    parser.add_argument('-o', '--outfile', type=argparse.FileType('w'))
     #parser.add_argument("-
     return parser
 
@@ -48,9 +52,14 @@ def main():
 
     cksum_list = virtual_os.fetch_cksum(FOLDERS_TO_CHECK)
     print "cksum_list"
-    diffs = os.OS.analyze_differences(cksum_list_analyzed_os, cksum_list)
+    diffs = analyze_differences(cksum_list_analyzed_os, cksum_list)
 
-    os.OS.print_differences(diffs, args.verbose - args.quiet)
+    # diffs = [["ok", ["0", "0", "okfile"], ["0", "0", "okfile"]], ["wr", ["0", "0", "wrfile"], ["1", "1", "wrfile"]], ["ex", ["3", "3", "exfile"], ["3", "3", "exfile"]], ["ms", ["4", "4", "msfile"], ["4", "4", "msfile"]]]
+
+    print_differences(diffs, args.verbose - args.quiet)
+
+    if args.outfile:
+        outfile_differences(args.outfile, diffs)
 
     # TODO: remove this later:
     # virtual_os.client.close()
