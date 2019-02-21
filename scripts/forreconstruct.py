@@ -7,7 +7,7 @@ from forrec.analysis import print_differences
 from forrec.analysis import outfile_differences
 import argparse
 
-VAGRANT_VM_FOLEDER_NAME = '.'
+VAGRANT_VM_FOLDER_NAME = '.'
 FOLDERS_TO_CHECK = ['/usr/bin']
 
 def _init_parser():
@@ -35,22 +35,22 @@ def main():
     analyzed_os = os.OS.create_from_directory(dir)
     print "analyzed_os"
     os_string = analyzed_os.fetch_os_string()
-    print "os_string"
+    print "os_string -", os_string
     target_packages = analyzed_os.extract_packages()
     print "target_packages"
     cksum_list_analyzed_os = analyzed_os.fetch_cksum(FOLDERS_TO_CHECK)
     # print "cksum_list_analyzed_os:\n", cksum_list_analyzed_os
 
-    virtual_os = vm.VM(VAGRANT_VM_FOLEDER_NAME)
+    virtual_os = vm.VM(VAGRANT_VM_FOLDER_NAME)
     print "virtual_os"
     virtual_os.create(os_string)
     print "virtual_os.create"
-    reconstructed_os = os.OS.create_from_vm(VAGRANT_VM_FOLEDER_NAME, virtual_os) # virtual_os.create(os_string)
+    reconstructed_os = os.OS.create_from_vm(VAGRANT_VM_FOLDER_NAME, virtual_os) # virtual_os.create(os_string)
     print "reconstructed_os"
-    #reconstructed_os.set_packages(target_packages) # virtual_os.install_packages(target_packages)
+    reconstructed_os.set_packages(target_packages) # virtual_os.install_packages(target_packages)
     print "reconstructed_os.set_packages"
 
-    cksum_list = virtual_os.fetch_cksum(FOLDERS_TO_CHECK)
+    cksum_list = reconstructed_os.fetch_cksum(FOLDERS_TO_CHECK)
     print "cksum_list"
     diffs = analyze_differences(cksum_list_analyzed_os, cksum_list)
 

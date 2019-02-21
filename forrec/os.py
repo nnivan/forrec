@@ -2,25 +2,12 @@ import subprocess
 import os
 from abc import ABCMeta, abstractmethod
 
+from forrec import vm
+
 class OS:
     __metaclass__ = ABCMeta
     
     def __init__(self):
-        pass
-    
-    # Returns e.g. ubuntu/xenial64
-    @abstractmethod
-    def fetch_os_string(self):
-        pass
-    
-    # Returns a list of installed packages on the OS
-    @abstractmethod
-    def extract_packages(self):
-        pass
-    
-    # Installs/uninstalls packages from the OS until the current packages match package_list
-    @abstractmethod
-    def set_packages(self, package_list):
         pass
 
     @staticmethod
@@ -51,8 +38,11 @@ class OS:
     # Create an OS instasnce from a directory
     @staticmethod
     def create_from_vm(directory,vm):
-        virtual_machine = LinuxOS(directory)
-        virtual_machine.set_packages = vm.install_packages
+        # TODO: fix DebianLikeLinux._create_debian_linux_from_directory
+        virtual_machine = DebianLikeLinux._create_debian_linux_from_directory(directory)
+        # virtual_machine.set_packages = vm.install_packages
+        virtual_machine.execute_command = vm.execute_command
+        virtual_machine.fetch_cksum = vm.fetch_cksum    
         return virtual_machine
 
 
@@ -63,7 +53,56 @@ class LinuxOS(OS):
     
     @staticmethod
     def _create_linux_from_directory(directory):
-        return LinuxOS(directory)
+        linux_id = LinuxOS.fetch_os_id(directory)
+        print "linux_id:", linux_id
+        if linux_id == "debian":
+            return DebianLikeLinux._create_debian_linux_from_directory(directory)
+        elif linux_id == "ubuntu":
+            return DebianLikeLinux._create_debian_linux_from_directory(directory)
+        elif linux_id == "fedora":
+            return FedoraLikeLinux(directory)
+
+    @staticmethod
+    def fetch_os_id(directory):
+        sp_args = "cat ./etc/os-release" # sp_args = "cat ./etc/*-release"
+        p = subprocess.Popen(sp_args, stdout=subprocess.PIPE, shell=True, cwd=directory)
+        pout, perr = p.communicate()
+
+        release = pout
+
+        id_index = release.find("\nID=")
+        ID = release[id_index + 4:release.find("\n", id_index + 4)]
+
+        return ID
+
+    # Returns e.g. ubuntu/xenial64
+    @abstractmethod
+    def fetch_os_string(self):
+        pass
+
+    # Returns a list of installed packages on the OS
+    @abstractmethod
+    def extract_packages(self):
+        pass
+
+    # Installs/uninstalls packages from the OS until the current packages match package_list
+    @abstractmethod
+    def set_packages(self, package_list):
+        pass
+
+    @abstractmethod
+    def fetch_cksum(self, folders_list):
+        pass
+
+
+
+class DebianLikeLinux(LinuxOS):
+    def __init__(self, directory):
+        self.root_directory = directory
+
+    @staticmethod
+    def _create_debian_linux_from_directory(directory):
+        return DebianLikeLinux(directory)
 
     # TODO
     @staticmethod
@@ -71,7 +110,7 @@ class LinuxOS(OS):
         return '64'
 
     def fetch_os_string(self):
-        sp_args = "cat ./etc/os-release" # sp_args = "cat ./etc/*-release"
+        sp_args = "cat ./etc/os-release"  # sp_args = "cat ./etc/*-release"
         p = subprocess.Popen(sp_args, stdout=subprocess.PIPE, shell=True, cwd=self.root_directory)
         pout, perr = p.communicate()
 
@@ -92,8 +131,6 @@ class LinuxOS(OS):
             if VERSION_ID == '14.04':
                 return 'ubuntu/trusty' + self.get_os_architecture()
 
- 
-    
     # Returns a list of installed packages on the OS
     def extract_packages(self):
         sp_args = "dpkg -l --root=" + self.root_directory
@@ -107,10 +144,21 @@ class LinuxOS(OS):
             packages.append(i[1] + '=' + i[2])
 
         return packages
-    
+
     # Installs/uninstalls packages from the OS until the current packages match package_list
     def set_packages(self, package_list):
-        pass
+
+        for package in package_list:
+                print package
+
+                stdin, stdout, stderr = self.execute_command("sudo apt-get -y install " + package)
+                print stdout.read()
+
+                err = stderr.read()
+
+                if err:
+                    print package, "failed"
+                    print err
 
     def fetch_cksum(self, folders_list):
 
@@ -130,3 +178,99 @@ class LinuxOS(OS):
                 cksum_list.append(i)
 
         return cksum_list
+
+
+class FedoraLikeLinux(LinuxOS):
+    def __init__(self, directory):
+        self.root_directory = directory
+
+    @staticmethod
+    def _create_fedora_linux_from_directory(directory):
+        return FedoraLikeLinux(directory)
+
+    # TODO
+    @staticmethod
+    def get_os_architecture():
+        return '64'
+
+    def fetch_os_string(self):
+        sp_args = "cat ./etc/os-release"  # sp_args = "cat ./etc/*-release"
+        p = subprocess.Popen(sp_args, stdout=subprocess.PIPE, shell=True, cwd=self.root_directory)
+        pout, perr = p.communicate()
+
+        release = pout
+
+        # id_index = release.find("\nID=")
+        # ID = release[id_index + 4:release.find("\n", id_index + 4)]
+
+        version_index = release.find("\nVERSION_ID=")
+        VERSION_ID = release[version_index + 12:release.find("\n", version_index + 11)]
+
+        return 'generic/fedora' + VERSION_ID
+
+
+    def extract_packages(self):
+        investigator_os = vm.VM('./investigator')
+
+        if not os.path.exists(self.root_directory):
+            os.mkdir("investigator")
+
+        investigator_os.create_investigaor(self.fetch_os_string(), self.root_directory)
+        raise Exception("debug")
+
+
+
+        # sp_args = "dpkg -l --root=" + self.root_directory
+        # p = subprocess.Popen(sp_args, stdout=subprocess.PIPE, shell=True, cwd=self.root_directory)
+        # pout, perr = p.communicate()
+        #
+        # pout = pout.splitlines()[5:]
+        # packages = []
+        # for i in pout:
+        #     i = i.split()
+        #     packages.append(i[1] + '=' + i[2])
+        #
+        # return packages
+
+    # Installs/uninstalls packages from the OS until the current packages match package_list
+    def set_packages(self, package_list):
+
+        for package in package_list:
+                print package
+
+                stdin, stdout, stderr = self.execute_command("sudo yum -y install" + package)
+                print stdout.read()
+
+                err = stderr.read()
+
+                if err:
+                    print package, "failed"
+                    print err
+
+    def fetch_cksum(self, folders_list):
+
+        cksum_list = []
+
+        for folder in folders_list:
+
+            sp_args = "find " + self.root_directory + folder + " -type f -exec cksum {} \;"
+            p = subprocess.Popen(sp_args, stdout=subprocess.PIPE, shell=True, cwd=self.root_directory)
+            pout, perr = p.communicate()
+
+            cksum_folder = pout.splitlines()
+
+            for i in cksum_folder:
+                i = i.split()
+                i[2] = i[2][len(self.root_directory):]
+                cksum_list.append(i)
+
+        return cksum_list
+
+
+# # TODO: Ubuntu
+# class Ubuntu(DebianLikeLinux):
+#     pass
+#
+# # TODO: Debian
+# class Debian(DebianLikeLinux):
+#     pass
