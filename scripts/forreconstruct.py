@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from forrec import os
+from forrec import forrec_os
 from forrec import vm
 from forrec.analysis import analyze_differences
 from forrec.analysis import print_differences
@@ -32,7 +32,7 @@ def main():
     elif args.directory:
         dir = args.target
 
-    analyzed_os = os.OS.create_from_directory(dir)
+    analyzed_os = forrec_os.OS.create_from_directory(dir)
     print "analyzed_os"
     os_string = analyzed_os.fetch_os_string()
     print "os_string -", os_string
@@ -45,7 +45,7 @@ def main():
     print "virtual_os"
     virtual_os.create(os_string)
     print "virtual_os.create"
-    reconstructed_os = os.OS.create_from_vm(VAGRANT_VM_FOLDER_NAME, virtual_os) # virtual_os.create(os_string)
+    reconstructed_os = forrec_os.OS.create_from_vm(VAGRANT_VM_FOLDER_NAME, virtual_os) # virtual_os.create(os_string)
     print "reconstructed_os"
     reconstructed_os.set_packages(target_packages) # virtual_os.install_packages(target_packages)
     print "reconstructed_os.set_packages"
