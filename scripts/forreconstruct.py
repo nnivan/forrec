@@ -37,7 +37,7 @@ def main():
     os_string = analyzed_os.fetch_os_string()
     print "os_string -", os_string
     target_packages = analyzed_os.extract_packages()
-    print "target_packages"
+    print "target_packages", target_packages
     cksum_list_analyzed_os = analyzed_os.fetch_cksum(FOLDERS_TO_CHECK)
     # print "cksum_list_analyzed_os:\n", cksum_list_analyzed_os
 

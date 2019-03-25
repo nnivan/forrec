@@ -1,4 +1,5 @@
 import vagrant
+import os
 import paramiko
 from subprocess import CalledProcessError
 
@@ -14,7 +15,22 @@ class VM:
         except CalledProcessError:
             raise VMError("Vagrant VM already created! Destroy it first")
 
+        vagrant_file = open("investigator/Vagrantfile", "r")
+        content = vagrant_file.readlines()
+        vagrant_file.close()
 
+        vagrant_file = open("investigator/Vagrantfile", "w")
+        while "end" not in content[len(content) - 1]:
+            content.pop()
+
+        content.pop()
+        content.append("\tconfig.vm.synced_folder \"" + sync_folder + "\", \"/mnt/image\", type: \"rsync\"\n")
+        content.append("end\n")
+
+        for line in content:
+            vagrant_file.write(line)
+
+        vagrant_file.close()
 
         self.vagrant.up()
 

@@ -10,7 +10,7 @@ def analyze_differences(list1, list2):
     ex = []
     ms = []
 
-    list_differences = [];
+    list_differences = []
 
     i = x = 0
     while i < len(list1) and x < len(list2):

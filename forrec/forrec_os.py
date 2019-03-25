@@ -39,7 +39,8 @@ class OS:
     @staticmethod
     def create_from_vm(directory,vm):
         # TODO: fix DebianLikeLinux._create_debian_linux_from_directory
-        virtual_machine = DebianLikeLinux._create_debian_linux_from_directory(directory)
+        # TODO: fix FedoraLikeLinux._create_fedora_linux_from_directory
+        virtual_machine = FedoraLikeLinux._create_fedora_linux_from_directory(directory)
         # virtual_machine.set_packages = vm.install_packages
         virtual_machine.execute_command = vm.execute_command
         virtual_machine.fetch_cksum = vm.fetch_cksum    
@@ -210,14 +211,19 @@ class FedoraLikeLinux(LinuxOS):
 
 
     def extract_packages(self):
+
+        os.mkdir("investigator")
         investigator_os = vm.VM('./investigator')
 
-        if not os.path.exists(self.root_directory):
-            os.mkdir("investigator")
+        investigator_os.create_investigaor(self.fetch_os_string(), self.root_directory + "var/lib/rpm")
 
-        investigator_os.create_investigaor(self.fetch_os_string(), self.root_directory)
-        raise Exception("debug")
+        stdin, stdout, stderr = investigator_os.execute_command("rpm -qa --dbpath /mnt/image")
 
+        packets = stdout.read().splitlines()
+
+        print "extract_packages, packets: ", packets
+
+        return packets
 
 
         # sp_args = "dpkg -l --root=" + self.root_directory
@@ -235,17 +241,19 @@ class FedoraLikeLinux(LinuxOS):
     # Installs/uninstalls packages from the OS until the current packages match package_list
     def set_packages(self, package_list):
 
+        print "forrec_os: set_packages: "
         for package in package_list:
-                print package
+            command = "sudo yum -y install " + package
+            print command
 
-                stdin, stdout, stderr = self.execute_command("sudo yum -y install" + package)
-                print stdout.read()
+            stdin, stdout, stderr = self.execute_command(command)
+            print stdout.read()
 
-                err = stderr.read()
+            err = stderr.read()
 
-                if err:
-                    print package, "failed"
-                    print err
+            if err:
+                print package, "failed"
+                print err
 
     def fetch_cksum(self, folders_list):
 
