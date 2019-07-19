@@ -37,7 +37,7 @@ class OS:
     
     # Create an OS instasnce from a directory
     @staticmethod
-    def create_from_vm(directory,vm):
+    def create_from_vm(directory, vm):
         # TODO: fix DebianLikeLinux._create_debian_linux_from_directory
         # TODO: fix FedoraLikeLinux._create_fedora_linux_from_directory
         virtual_machine = FedoraLikeLinux._create_fedora_linux_from_directory(directory)
