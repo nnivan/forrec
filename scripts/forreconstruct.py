@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from forrec import forrec_os
 from forrec import vm
@@ -12,6 +12,7 @@ import code
 VAGRANT_VM_FOLDER_NAME = '.'
 FOLDERS_TO_CHECK = ['/usr/bin']
 
+
 def _init_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument("target")
@@ -22,23 +23,30 @@ def _init_parser():
     verb.add_argument("-v", "--verbose", action="count", default=2)
     verb.add_argument("-q", "--quiet", action="count", default=0)
     parser.add_argument('-o', '--outfile', type=argparse.FileType('w'))
-    #parser.add_argument("-
+    # parser.add_argument("-
     return parser
 
+
 def main():
+    parser = _init_parser()
+    args = parser.parse_args()
+    if args.directory:
+        fs_dir = args.target
+    else:
+        print("Not implemented yet!")
+        return
+
+    print(fs_dir)
 
     v = vm.VM('.')
     v.create("ubuntu/xenial64")
-    stdin, stdout, stderr = v.execute_command("vi --version")
-    print(stdout.read().splitlines());
+    stdin, stdout, stderr = v.execute_command("echo 'pesho\ngosho\njoro'")
+    out = stdout.read().splitlines()
 
-    # parser = _init_parser()
-    # args = parser.parse_args()
-    # if args.image_file:
-    #     print "Not implemented yet!"
-    #     return
-    # elif args.directory:
-    #     dir = args.target
+    for line in out:
+        print(line.decode())
+
+
 
     # analyzed_os = forrec_os.OS.create_from_directory(dir)
     # print "analyzed_os"

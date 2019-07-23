@@ -65,26 +65,26 @@ def print_differences(differences, verbose):
         if x[0] == "ok":
             ok += 1
             if verbose >= 3:
-                print '\033[92m', "[ok] -", x[1][2]
+                print('\033[92m', "[ok] -", x[1][2])
         elif x[0] == "wr":
             wr += 1
             if verbose >= 1:
-                print '\033[91m', "[wr] -", x[1][2]
+                print('\033[91m', "[wr] -", x[1][2])
         elif x[0] == "ms":
             ms += 1
             if verbose >= 2:
-                print '\033[94m', "[ms] -", x[1][2]
+                print('\033[94m', "[ms] -", x[1][2])
         elif x[0] == "ex":
             ex += 1
             if verbose >= 2:
-                print '\033[93m', "[ex] -", x[1][2]
+                print('\033[93m', "[ex] -", x[1][2])
 
-    print '\033[0m', "\n Statistics: "
-    print '\033[0m', "Total", '\033[92m' + "Okay    -", ok
-    print '\033[0m', "Total", '\033[91m' + "Wrong   -", wr
-    print '\033[0m', "Total", '\033[93m' + "Extra   -", ex
-    print '\033[0m', "Total", '\033[94m' + "Missing -", ms
-    print '\033[0m'
+    print('\033[0m', "\n Statistics: ")
+    print('\033[0m', "Total", '\033[92m' + "Okay    -", ok)
+    print('\033[0m', "Total", '\033[91m' + "Wrong   -", wr)
+    print('\033[0m', "Total", '\033[93m' + "Extra   -", ex)
+    print('\033[0m', "Total", '\033[94m' + "Missing -", ms)
+    print('\033[0m')
 
 
 def outfile_differences(file, differences):

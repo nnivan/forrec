@@ -1,8 +1,8 @@
 import subprocess
 import os
 from abc import ABCMeta, abstractmethod
-
 from forrec import vm
+
 
 class OS:
     __metaclass__ = ABCMeta
@@ -43,7 +43,7 @@ class OS:
         virtual_machine = FedoraLikeLinux._create_fedora_linux_from_directory(directory)
         # virtual_machine.set_packages = vm.install_packages
         virtual_machine.execute_command = vm.execute_command
-        virtual_machine.fetch_cksum = vm.fetch_cksum    
+        virtual_machine.fetch_cksum = vm.fetch_cksum
         return virtual_machine
 
 
@@ -55,7 +55,7 @@ class LinuxOS(OS):
     @staticmethod
     def _create_linux_from_directory(directory):
         linux_id = LinuxOS.fetch_os_id(directory)
-        print "linux_id:", linux_id
+        print("linux_id:", linux_id)
         if linux_id == "debian":
             return DebianLikeLinux._create_debian_linux_from_directory(directory)
         elif linux_id == "ubuntu":
@@ -94,7 +94,6 @@ class LinuxOS(OS):
     @abstractmethod
     def fetch_cksum(self, folders_list):
         pass
-
 
 
 class DebianLikeLinux(LinuxOS):
@@ -150,16 +149,16 @@ class DebianLikeLinux(LinuxOS):
     def set_packages(self, package_list):
 
         for package in package_list:
-                print package
+                print(package)
 
                 stdin, stdout, stderr = self.execute_command("sudo apt-get -y install " + package)
-                print stdout.read()
+                print(stdout.read())
 
                 err = stderr.read()
 
                 if err:
-                    print package, "failed"
-                    print err
+                    print(package, "failed")
+                    print(err)
 
     def fetch_cksum(self, folders_list):
 
@@ -221,7 +220,7 @@ class FedoraLikeLinux(LinuxOS):
 
         packets = stdout.read().splitlines()
 
-        print "extract_packages, packets: ", packets
+        print("extract_packages, packets: ", packets)
 
         return packets
 
@@ -241,19 +240,19 @@ class FedoraLikeLinux(LinuxOS):
     # Installs/uninstalls packages from the OS until the current packages match package_list
     def set_packages(self, package_list):
 
-        print "forrec_os: set_packages: "
+        print("forrec_os: set_packages: ")
         for package in package_list:
             command = "sudo yum -y install " + package
-            print command
+            print(command)
 
             stdin, stdout, stderr = self.execute_command(command)
-            print stdout.read()
+            print(stdout.read())
 
             err = stderr.read()
 
             if err:
-                print package, "failed"
-                print err
+                print(package, "failed")
+                print(err)
 
     def fetch_cksum(self, folders_list):
 
