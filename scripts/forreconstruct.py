@@ -38,15 +38,9 @@ def main():
 
     print(fs_dir)
 
-    v = vm.VM('.')
-    v.create("ubuntu/xenial64")
-    stdin, stdout, stderr = v.execute_command("echo 'pesho\ngosho\njoro'")
-    out = stdout.read().splitlines()
-
-    for line in out:
-        print(line.decode())
-
-
+    analyzed_os = forrec_os.OS.create_from_directory(fs_dir)
+    os_string = analyzed_os.get_os_string()
+    print(os_string)
 
     # analyzed_os = forrec_os.OS.create_from_directory(dir)
     # print "analyzed_os"
