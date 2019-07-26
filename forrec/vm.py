@@ -5,14 +5,14 @@ from subprocess import CalledProcessError
 
 class VM:
     def __init__(self, location):
-        self.vagrant = vagrant.Vagrant(root=location, quiet_stdout=False, quiet_stderr=False)
+        self.vagrant = vagrant.Vagrant(root=location, quiet_stdout=True, quiet_stderr=True)
         self.client = paramiko.SSHClient()
 
     def __del__(self):
         # self.vagrant.halt()
         self.client.close()
 
-    def create(self, os_string, sync_folder=""):
+    def create(self, os_string, analyzed_fs=""):
 
         try:
             self.vagrant.init()
@@ -20,10 +20,11 @@ class VM:
             raise Exception("Vagrant VM already created! Destroy it first")
 
         file = open("Vagrantfile", "w")
+        file.write("# Created by forrec\n")
         file.write("Vagrant.configure(\"2\") do |config| \n")
         file.write("\tconfig.vm.box = \"" + os_string + "\" \n")
-        if sync_folder:
-            file.write("config.vm.synced_folder \"" + sync_folder + "\", \"/mnt/synced_folder\"\n")
+        if analyzed_fs:
+            file.write("\tconfig.vm.synced_folder \"" + analyzed_fs + "\", \"/mnt/analyzed_fs\"\n")
         file.write("end \n")
         file.close()
 

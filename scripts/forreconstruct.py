@@ -42,11 +42,10 @@ def main():
     print("OS string:\t", os_string)
 
     investigator = vm.VM('.')
-    investigator.create(os_string, sync_folder=fs_dir)
+    investigator.create(os_string, analyzed_fs=fs_dir)
 
     packages = analyzed_os.get_packages(investigator)
-    print(packages)
-    print("packages")
+    print("Packages:\t", len(packages))
 
 
 if __name__=="__main__":

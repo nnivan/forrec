@@ -146,7 +146,7 @@ class Ubuntu(DebianLike):
         return self.os_string
 
     def get_packages(self, investigator):
-        stdin, stdout, stderr = investigator.execute_command("dpkg --list --root=/mnt/synced_folder")
+        stdin, stdout, stderr = investigator.execute_command("dpkg --list --root=/mnt/analyzed_fs/")
         packages_h = stdout.read().decode().splitlines()[5:]
 
         packages = []
@@ -186,4 +186,8 @@ class Fedora(FedoraLike):
         return self.os_string
 
     def get_packages(self, investigator):
-        pass
+        stdin, stdout, stderr = investigator.execute_command("rpm -qa --dbpath=/mnt/analyzed_fs/var/lib/rpm")
+        packages_h = stdout.read().decode()
+        packages = packages_h.splitlines()
+
+        return packages
