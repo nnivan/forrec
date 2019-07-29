@@ -72,6 +72,10 @@ class Linux(OS):
     def get_packages(self, investigator):
         pass
 
+    @abstractmethod
+    def set_packages(self, package_list, reconstructed):
+        pass
+
 
 class DebianLike(Linux):
     def __init__(self, directory, os_release):
@@ -97,6 +101,10 @@ class DebianLike(Linux):
     def get_packages(self, investigator):
         pass
 
+    @abstractmethod
+    def set_packages(self, package_list, reconstructed):
+        pass
+
 
 class FedoraLike(Linux):
     def __init__(self, directory, os_release):
@@ -120,6 +128,10 @@ class FedoraLike(Linux):
 
     @abstractmethod
     def get_packages(self, investigator):
+        pass
+
+    @abstractmethod
+    def set_packages(self, package_list, reconstructed):
         pass
 
 
@@ -156,6 +168,19 @@ class Ubuntu(DebianLike):
 
         return packages
 
+    def set_packages(self, package_list, reconstructed):
+
+        count = 0
+        for package in package_list:
+            count = count + 1
+
+            command = "sudo apt-get install -y " + package
+            print("Package (", count, "/", len(package_list), "): ", command)
+
+            stdin, stdout, stderr = reconstructed.execute_command(command)
+            print(stdout.read().decode())
+            print(stderr.read().decode())
+
 
 class Fedora(FedoraLike):
     def __init__(self, directory, os_release, os_string):
@@ -191,3 +216,16 @@ class Fedora(FedoraLike):
         packages = packages_h.splitlines()
 
         return packages
+
+    def set_packages(self, package_list, reconstructed):
+
+        count = 0
+        for package in package_list:
+            count = count + 1
+
+            command = "sudo yum install -y " + package
+            print("Package (", count, "/", len(package_list), "): ", command)
+
+            stdin, stdout, stderr = reconstructed.execute_command(command)
+            print(stdout.read().decode())
+            print(stderr.read().decode())

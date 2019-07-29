@@ -38,15 +38,22 @@ def main():
 
     analyzed_os = forrec_os.OS.create_from_directory(fs_dir)
     print("Filesystem:\t", fs_dir)
+
     os_string = analyzed_os.get_os_string()
     print("OS string:\t", os_string)
 
-    investigator = vm.VM('.')
+    investigator = vm.VM("investigator")
     investigator.create(os_string, analyzed_fs=fs_dir)
 
     packages = analyzed_os.get_packages(investigator)
     print("Packages:\t", len(packages))
 
+    reconstructed_os = vm.VM("reconstructed")
+    reconstructed_os.create(os_string, vbguest=False)
 
-if __name__=="__main__":
+    analyzed_os.set_packages(packages, reconstructed_os)
+    pass
+
+
+if __name__ == "__main__":
     main()
