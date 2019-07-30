@@ -14,7 +14,7 @@ class VM:
         # self.vagrant.halt()
         self.client.close()
 
-    def create(self, os_string, analyzed_fs="", reconstructed_fs="", vbguest=True):
+    def create(self, os_string, vbname, analyzed_fs="", reconstructed_fs="", vbguest=True):
 
         try:
             self.vagrant.init()
@@ -31,6 +31,9 @@ class VM:
             file.write("\tconfig.vm.synced_folder \"" + reconstructed_fs + "\", \"/mnt/reconstructed_fs\"\n")
         if not vbguest:
             file.write("\tconfig.vbguest.auto_update = false\n")
+        file.write("\tconfig.vm.provider \"virtualbox\" do | vb |\n")
+        file.write("\t\tvb.name = \"" + vbname + "\"\n")
+        file.write("\tend\n")
         file.write("end \n")
         file.close()
 
