@@ -42,16 +42,17 @@ def main():
     os_string = analyzed_os.get_os_string()
     print("OS string:\t", os_string)
 
-    investigator = vm.VM("investigator")
-    investigator.create(os_string, "investigator_forrec", analyzed_fs=fs_dir)
+    investigator = vm.VM("investigator", "investigator_forrec")
+    investigator.create(os_string, analyzed_fs=fs_dir)
 
     packages = analyzed_os.get_packages(investigator)
     print("Packages:\t", len(packages))
 
-    reconstructed_os = vm.VM("reconstructed")
-    reconstructed_os.create(os_string, "reconstructed_forrec", vbguest=False)
+    reconstructed_os = vm.VM("reconstructed", "reconstructed_forrec")
+    reconstructed_os.create(os_string, vbguest=False)
 
     # analyzed_os.set_packages(packages, reconstructed_os)
+    reconstructed_os.get_vdi("investigator")
     pass
 
 
