@@ -19,7 +19,7 @@ class VM:
     def get_vdi(self, directory):
         self.vagrant.halt()
         vmdk_location = "~/VirtualBox\\ VMs/" + self.vbname + "/box-disk1.vmdk"
-        sp_args = "vboxmanage clonehd --format VDI " + vmdk_location + " disk_" + self.vbname + ".vdi"
+        sp_args = "vboxmanage clonehd --format RAW " + vmdk_location + " disk_" + self.vbname + ".img"
         print(sp_args)
         p = subprocess.Popen(sp_args, stdout=subprocess.PIPE, shell=True, cwd=directory)
         pout, perr = p.communicate()

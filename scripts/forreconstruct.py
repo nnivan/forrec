@@ -44,6 +44,9 @@ def main():
 
     investigator = vm.VM("investigator", "investigator_forrec")
     investigator.create(os_string, analyzed_fs=fs_dir)
+    # TODO: fix: analyzed_os..(investigator)
+    analyzed_os.do_update(investigator)
+    analyzed_os.set_packages(["libguestfs-tools"], investigator)
 
     packages = analyzed_os.get_packages(investigator)
     print("Packages:\t", len(packages))

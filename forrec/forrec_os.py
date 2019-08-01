@@ -76,6 +76,10 @@ class Linux(OS):
     def set_packages(self, package_list, reconstructed):
         pass
 
+    @abstractmethod
+    def do_update(self, virtual_machine):
+        pass
+
 
 class DebianLike(Linux):
     def __init__(self, directory, os_release):
@@ -105,6 +109,10 @@ class DebianLike(Linux):
     def set_packages(self, package_list, reconstructed):
         pass
 
+    @abstractmethod
+    def do_update(self, virtual_machine):
+        pass
+
 
 class FedoraLike(Linux):
     def __init__(self, directory, os_release):
@@ -132,6 +140,10 @@ class FedoraLike(Linux):
 
     @abstractmethod
     def set_packages(self, package_list, reconstructed):
+        pass
+
+    @abstractmethod
+    def do_update(self, virtual_machine):
         pass
 
 
@@ -174,12 +186,19 @@ class Ubuntu(DebianLike):
         for package in package_list:
             count = count + 1
 
-            command = "sudo apt-get install -y " + package
+            command = "sudo DEBIAN_FRONTEND=noninteractive apt-get -yq install " + package
             print("Package (", count, "/", len(package_list), "): ", command)
 
             stdin, stdout, stderr = reconstructed.execute_command(command)
             print(stdout.read().decode())
             print(stderr.read().decode())
+
+    def do_update(self, virtual_machine):
+        command = "sudo apt-get update -yq && sudo apt-get upgrade -yq"
+
+        stdin, stdout, stderr = virtual_machine.execute_command(command)
+        print(stdout.read().decode())
+        print(stderr.read().decode())
 
 
 class Fedora(FedoraLike):
@@ -229,3 +248,10 @@ class Fedora(FedoraLike):
             stdin, stdout, stderr = reconstructed.execute_command(command)
             print(stdout.read().decode())
             print(stderr.read().decode())
+
+    def do_update(self, virtual_machine):
+        command = "sudo yum update -y"
+
+        stdin, stdout, stderr = virtual_machine.execute_command(command)
+        print(stdout.read().decode())
+        print(stderr.read().decode())
