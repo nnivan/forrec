@@ -55,7 +55,8 @@ def main():
     reconstructed_os.create(os_string, vbguest=False)
 
     # analyzed_os.set_packages(packages, reconstructed_os)
-    reconstructed_os.get_vdi("investigator")
+    reconstructed_os.get_fs("investigator")
+    investigator.mount_image("/vagrant/disk_reconstructed_forrec.vdi")
     pass
 
 

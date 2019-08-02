@@ -13,18 +13,36 @@ class VM:
         self.vbname = vbname
 
     def __del__(self):
-        self.vagrant.halt()
+        # self.vagrant.halt()
         self.client.close()
 
-    def get_vdi(self, directory):
+    def get_fs(self, directory):
         self.vagrant.halt()
-        vmdk_location = "~/VirtualBox\\ VMs/" + self.vbname + "/box-disk1.vmdk"
-        sp_args = "vboxmanage clonehd --format RAW " + vmdk_location + " disk_" + self.vbname + ".img"
+        vmdk_location = "~/VirtualBox\\ VMs/" + self.vbname + "/*.vmdk"
+        sp_args = "vboxmanage clonehd --format VDI " + vmdk_location + " disk_" + self.vbname + ".vdi"
         print(sp_args)
         p = subprocess.Popen(sp_args, stdout=subprocess.PIPE, shell=True, cwd=directory)
         pout, perr = p.communicate()
         print(pout)
         print(perr)
+
+    def mount_image(self, file_location):
+        # TODO: FIX
+        stdin, stdout, stderr = self.execute_command("sudo mkdir /mnt/reconstructed_fs")
+        print(stdout.read().decode())
+        print(stderr.read().decode())
+        stdin, stdout, stderr = self.execute_command("sudo modprobe nbd")
+        print(stdout.read().decode())
+        print(stderr.read().decode())
+        stdin, stdout, stderr = self.execute_command("sudo qemu-nbd -r -c /dev/nbd1 " + file_location)
+        print(stdout.read().decode())
+        print(stderr.read().decode())
+        stdin, stdout, stderr = self.execute_command("sudo mount -o ro /dev/nbd1p1 /mnt/reconstructed_fs")
+        print(stdout.read().decode())
+        print(stderr.read().decode())
+        stdin, stdout, stderr = self.execute_command("ls /mnt")
+        print(stdout.read().decode())
+        print(stderr.read().decode())
 
     def create(self, os_string, analyzed_fs="", reconstructed_fs="", vbguest=True):
 
