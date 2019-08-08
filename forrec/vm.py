@@ -85,5 +85,34 @@ class VM:
 
         return stdin, stdout, stderr
 
+    # TODO: fix const names
+    def get_hash(self, folders):
+
+        for folder in folders:
+
+            hash_list_analyzed = []
+            hash_list_reconstructed = []
+
+            command_analyzed = "find /mnt/analyzed_fs/" + folder + " -type f -exec sha256sum {} \\;"
+            command_reconstructed = "find /mnt/reconstructed_fs/" + folder + " -type f -exec sha256sum {} \\;"
+
+            stdin, stdout_analyzed, stderr_analyzed = self.execute_command(command_analyzed)
+            stdin, stdout_reconstructed, stderr_reconstructed = self.execute_command(command_reconstructed)
+
+            stdout_analyzed = stdout_analyzed.read().decode().splitlines()
+            stdout_reconstructed = stdout_reconstructed.read().decode().splitlines()
+
+            for i in stdout_analyzed:
+                i = i.split()
+                i[1] = i[1][len("/mnt/analyzed_fs/"):]
+                hash_list_analyzed.append(["0", i[0], i[1]])
+
+            for i in stdout_reconstructed:
+                i = i.split()
+                i[1] = i[1][len("/mnt/reconstructed_fs/"):]
+                hash_list_reconstructed.append(["0", i[0], i[1]])
+
+            return hash_list_analyzed, hash_list_reconstructed
+
     def popen(self):
         pass
