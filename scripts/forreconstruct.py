@@ -7,8 +7,6 @@ from forrec.analysis import print_differences
 from forrec.analysis import outfile_differences
 import argparse
 
-import code
-
 VAGRANT_VM_FOLDER_NAME = '.'
 FOLDERS_TO_CHECK = ['/usr/bin']
 
@@ -43,7 +41,7 @@ def main():
     print("OS string:\t", os_string)
 
     investigator = vm.VM("investigator", "investigator_forrec")
-    investigator.create(os_string, analyzed_fs=fs_dir)
+    investigator.create(os_string, [[fs_dir, "analyzed_fs"], [".", "vagrant"]])
     # TODO: fix: analyzed_os..(investigator)
     analyzed_os.do_update(investigator)
     analyzed_os.set_packages(["libguestfs-tools"], investigator)
@@ -55,6 +53,7 @@ def main():
     reconstructed_os.create(os_string, vbguest=False)
 
     # analyzed_os.set_packages(packages, reconstructed_os)
+    reconstructed_os.get_fs("investigator")
     reconstructed_os.get_fs("investigator")
     investigator.mount_image("/vagrant/disk_reconstructed_forrec.vdi")
 

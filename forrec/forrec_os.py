@@ -170,6 +170,7 @@ class Ubuntu(DebianLike):
         return self.os_string
 
     def get_packages(self, investigator):
+        # TODO: FIX const --root=...
         stdin, stdout, stderr = investigator.execute_command("dpkg --list --root=/mnt/analyzed_fs/")
         packages_h = stdout.read().decode().splitlines()[5:]
 

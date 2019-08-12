@@ -8,7 +8,7 @@ from subprocess import CalledProcessError
 class VM:
     def __init__(self, location, vbname):
         os.mkdir(location)
-        self.vagrant = vagrant.Vagrant(root=location, quiet_stdout=True, quiet_stderr=True)
+        self.vagrant = vagrant.Vagrant(root=location, quiet_stdout=False, quiet_stderr=False)
         self.client = paramiko.SSHClient()
         self.vbname = vbname
 
@@ -44,7 +44,7 @@ class VM:
         print(stdout.read().decode())
         print(stderr.read().decode())
 
-    def create(self, os_string, analyzed_fs="", reconstructed_fs="", vbguest=True):
+    def create(self, os_string, sync_folders=[], vbguest=True):
 
         try:
             self.vagrant.init()
@@ -55,10 +55,8 @@ class VM:
         file.write("# Created by forrec\n")
         file.write("Vagrant.configure(\"2\") do |config| \n")
         file.write("\tconfig.vm.box = \"" + os_string + "\" \n")
-        if analyzed_fs:
-            file.write("\tconfig.vm.synced_folder \"" + analyzed_fs + "\", \"/mnt/analyzed_fs\"\n")
-        if reconstructed_fs:
-            file.write("\tconfig.vm.synced_folder \"" + reconstructed_fs + "\", \"/mnt/reconstructed_fs\"\n")
+        for folder in sync_folders:
+            file.write("\tconfig.vm.synced_folder \"" + folder[0] + "\", \"/mnt/" + folder[1] + "\"\n")
         if not vbguest:
             file.write("\tconfig.vbguest.auto_update = false\n")
         file.write("\tconfig.vm.provider \"virtualbox\" do | vb |\n")
