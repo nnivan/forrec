@@ -53,6 +53,8 @@ class Linux(OS):
 
         if os_release['ID'] == "ubuntu":
             return DebianLike.create_debian_like_from_directory(directory, os_release)
+        elif os_release['ID'] == "debian":
+            return DebianLike.create_debian_like_from_directory(directory, os_release)
         elif os_release['ID'] == "fedora":
             return FedoraLike.create_fedora_like_from_directory(directory, os_release)
 
@@ -89,6 +91,8 @@ class DebianLike(Linux):
     def create_debian_like_from_directory(directory, os_release):
         if os_release['ID'] == "ubuntu":
             return Ubuntu.create_ubuntu_from_directory(directory, os_release)
+        elif os_release['ID'] == "debian":
+            return Debian.create_debian_from_directory(directory, os_release)
 
         raise NotImplementedError("Could not recognize the OS family type")
 
@@ -145,6 +149,59 @@ class FedoraLike(Linux):
     @abstractmethod
     def do_update(self, virtual_machine):
         pass
+
+
+class Debian(DebianLike):
+    def __init__(self, directory, os_release, os_string):
+        super().__init__(directory, os_release)
+        self.os_string = os_string
+
+    @staticmethod
+    def create_debian_from_directory(directory, os_release):
+        os_string = Debian.os_release_to_os_string(os_release)
+        return Debian(directory, os_release, os_string)
+
+    @staticmethod
+    def os_release_to_os_string(os_release):
+        if '9' in os_release['VERSION_ID']:
+            return 'debian/stretch64'
+        else:
+            raise NotImplementedError("Could not find the os string")
+
+    def get_os_string(self):
+        return self.os_string
+
+    def get_packages(self, investigator):
+        # TODO: FIX const --root=...
+        stdin, stdout, stderr = investigator.execute_command("dpkg --list --root=/mnt/analyzed_fs/")
+        packages_h = stdout.read().decode().splitlines()[5:]
+
+        packages = []
+        for p in packages_h:
+            p = p.split()
+            packages.append(p[1] + '=' + p[2])
+
+        return packages
+
+    def set_packages(self, package_list, reconstructed):
+
+        count = 0
+        for package in package_list:
+            count = count + 1
+
+            command = "sudo DEBIAN_FRONTEND=noninteractive apt-get -yq install " + package
+            print("Package (", count, "/", len(package_list), "): ", command)
+
+            stdin, stdout, stderr = reconstructed.execute_command(command)
+            print(stdout.read().decode())
+            print(stderr.read().decode())
+
+    def do_update(self, virtual_machine):
+        command = "sudo apt-get update -yq && sudo apt-get upgrade -yq"
+
+        stdin, stdout, stderr = virtual_machine.execute_command(command)
+        print(stdout.read().decode())
+        print(stderr.read().decode())
 
 
 class Ubuntu(DebianLike):

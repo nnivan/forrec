@@ -54,8 +54,7 @@ def main():
 
     # analyzed_os.set_packages(packages, reconstructed_os)
     reconstructed_os.get_fs("investigator")
-    reconstructed_os.get_fs("investigator")
-    investigator.mount_image("/vagrant/disk_reconstructed_forrec.vdi")
+    investigator.mount_image("/mnt/vagrant/disk_reconstructed_forrec.vdi")
 
     hash_list_analyzed, hash_list_reconstructed = investigator.get_hash(FOLDERS_TO_CHECK)
     diffs = analyze_differences(hash_list_analyzed, hash_list_reconstructed)
@@ -65,9 +64,6 @@ def main():
         outfile_differences(args.outfile, diffs)
 
     print("End\n")
-
-    # TODO: remove pass
-    pass
 
 
 if __name__ == "__main__":
