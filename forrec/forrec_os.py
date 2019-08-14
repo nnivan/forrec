@@ -197,8 +197,12 @@ class Debian(DebianLike):
             print(stderr.read().decode())
 
     def do_update(self, virtual_machine):
-        command = "sudo apt-get update -yq && sudo apt-get upgrade -yq"
+        command = "sudo DEBIAN_FRONTEND=noninteractive apt-get update -yq"
+        stdin, stdout, stderr = virtual_machine.execute_command(command)
+        print(stdout.read().decode())
+        print(stderr.read().decode())
 
+        command = "sudo DEBIAN_FRONTEND=noninteractive apt-get upgrade -yq"
         stdin, stdout, stderr = virtual_machine.execute_command(command)
         print(stdout.read().decode())
         print(stderr.read().decode())
@@ -252,8 +256,12 @@ class Ubuntu(DebianLike):
             print(stderr.read().decode())
 
     def do_update(self, virtual_machine):
-        command = "sudo apt-get update -yq && sudo apt-get upgrade -yq"
+        command = "sudo DEBIAN_FRONTEND=noninteractive apt-get update -yq"
+        stdin, stdout, stderr = virtual_machine.execute_command(command)
+        print(stdout.read().decode())
+        print(stderr.read().decode())
 
+        command = "sudo DEBIAN_FRONTEND=noninteractive apt-get upgrade -yq"
         stdin, stdout, stderr = virtual_machine.execute_command(command)
         print(stdout.read().decode())
         print(stderr.read().decode())
