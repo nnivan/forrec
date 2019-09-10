@@ -8,7 +8,7 @@ from forrec.analysis import outfile_differences
 import argparse
 
 VAGRANT_VM_FOLDER_NAME = '.'
-FOLDERS_TO_CHECK = ['/usr/bin']
+FOLDERS_TO_CHECK = ['/usr/bin', '/usr/sbin', '/bin', '/sbin', '/lib', '/lib64']
 
 
 def _init_parser():
@@ -52,7 +52,7 @@ def main():
     reconstructed_os = vm.VM("reconstructed", "reconstructed_forrec")
     reconstructed_os.create(os_string, vbguest=False)
 
-    # analyzed_os.set_packages(packages, reconstructed_os)
+    analyzed_os.set_packages(packages, reconstructed_os, archives=True)
     reconstructed_os.get_fs("investigator")
     investigator.mount_image("/mnt/vagrant/disk_reconstructed_forrec.vdi")
 

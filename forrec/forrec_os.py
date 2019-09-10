@@ -75,7 +75,7 @@ class Linux(OS):
         pass
 
     @abstractmethod
-    def set_packages(self, package_list, reconstructed):
+    def set_packages(self, package_list, reconstructed, archives=False):
         pass
 
     @abstractmethod
@@ -110,7 +110,7 @@ class DebianLike(Linux):
         pass
 
     @abstractmethod
-    def set_packages(self, package_list, reconstructed):
+    def set_packages(self, package_list, reconstructed, archives=False):
         pass
 
     @abstractmethod
@@ -143,7 +143,7 @@ class FedoraLike(Linux):
         pass
 
     @abstractmethod
-    def set_packages(self, package_list, reconstructed):
+    def set_packages(self, package_list, reconstructed, archives=False):
         pass
 
     @abstractmethod
@@ -183,7 +183,17 @@ class Debian(DebianLike):
 
         return packages
 
-    def set_packages(self, package_list, reconstructed):
+    def set_packages(self, package_list, reconstructed, archives=False):
+
+        if archives:
+            archives_dep_command = "sudo bash -c \"echo -e '\ndeb http://archive.debian.org/debian/ etch main non-free contrib\ndeb-src http://archive.debian.org/debian/ etch main non-free contrib\ndeb http://archive.debian.org/debian-security/ etch/updates main non-free contrib\ndeb-src http://archive.debian.org/debian-security/ etch/updates main non-free contrib\n\ndeb http://archive.debian.org/debian/ bo main non-free contrib\ndeb-src http://archive.debian.org/debian/ bo main non-free contrib\ndeb http://archive.debian.org/debian-security/ bo/updates main non-free contrib\ndeb-src http://archive.debian.org/debian-security/ bo/updates main non-free contrib\n\ndeb http://archive.debian.org/debian/ rex main non-free contrib\ndeb-src http://archive.debian.org/debian/ rex main non-free contrib\ndeb http://archive.debian.org/debian-security/ rex/updates main non-free contrib\ndeb-src http://archive.debian.org/debian-security/ rex/updates main non-free contrib\n\ndeb http://archive.debian.org/debian/ buzz main non-free contrib\ndeb-src http://archive.debian.org/debian/ buzz main non-free contrib\ndeb http://archive.debian.org/debian-security/ buzz/updates main non-free contrib\ndeb-src http://archive.debian.org/debian-security/ buzz/updates main non-free contrib\n\ndeb http://archive.debian.org/debian/ hamm main non-free contrib\ndeb-src http://archive.debian.org/debian/ hamm main non-free contrib\ndeb http://archive.debian.org/debian-security/ hamm/updates main non-free contrib\ndeb-src http://archive.debian.org/debian-security/ hamm/updates main non-free contrib\n\ndeb http://archive.debian.org/debian/ slink main non-free contrib\ndeb-src http://archive.debian.org/debian/ slink main non-free contrib\ndeb http://archive.debian.org/debian-security/ slink/updates main non-free contrib\ndeb-src http://archive.debian.org/debian-security/ slink/updates main non-free contrib\n\ndeb http://archive.debian.org/debian/ potato main non-free contrib\ndeb-src http://archive.debian.org/debian/ potato main non-free contrib\ndeb http://archive.debian.org/debian-security/ potato/updates main non-free contrib\ndeb-src http://archive.debian.org/debian-security/ potato/updates main non-free contrib\n\ndeb http://archive.debian.org/debian/ woody main non-free contrib\ndeb-src http://archive.debian.org/debian/ woody main non-free contrib\ndeb http://archive.debian.org/debian-security/ woody/updates main non-free contrib\ndeb-src http://archive.debian.org/debian-security/ woody/updates main non-free contrib\n\ndeb http://archive.debian.org/debian/ sarge main non-free contrib\ndeb-src http://archive.debian.org/debian/ sarge main non-free contrib\ndeb http://archive.debian.org/debian-security/ sarge/updates main non-free contrib\ndeb-src http://archive.debian.org/debian-security/ sarge/updates main non-free contrib\n\ndeb http://archive.debian.org/debian/ lenny main non-free contrib\ndeb-src http://archive.debian.org/debian/ lenny main non-free contrib\ndeb http://archive.debian.org/debian-security/ lenny/updates main non-free contrib\ndeb-src http://archive.debian.org/debian-security/ lenny/updates main non-free contrib\n\ndeb http://archive.debian.org/debian/ squeeze main non-free contrib\ndeb-src http://archive.debian.org/debian/ squeeze main non-free contrib\ndeb http://archive.debian.org/debian-security/ squeeze/updates main non-free contrib\ndeb-src http://archive.debian.org/debian-security/ squeeze/updates main non-free contrib\n' >> /etc/apt/sources.list\""
+            archives_update_command = "sudo apt-get -o Acquire::Check-Valid-Until=false update"
+            stdin, stdout, stderr = reconstructed.execute_command(archives_dep_command)
+            print(stdout.read().decode())
+            print(stderr.read().decode())
+            stdin, stdout, stderr = reconstructed.execute_command(archives_update_command)
+            print(stdout.read().decode())
+            print(stderr.read().decode())
 
         count = 0
         for package in package_list:
@@ -242,7 +252,7 @@ class Ubuntu(DebianLike):
 
         return packages
 
-    def set_packages(self, package_list, reconstructed):
+    def set_packages(self, package_list, reconstructed, archives=False):
 
         count = 0
         for package in package_list:
@@ -302,7 +312,7 @@ class Fedora(FedoraLike):
 
         return packages
 
-    def set_packages(self, package_list, reconstructed):
+    def set_packages(self, package_list, reconstructed, archives=False):
 
         count = 0
         for package in package_list:

@@ -90,10 +90,10 @@ class VM:
     # TODO: fix const names
     def get_hash(self, folders):
 
-        for folder in folders:
+        hash_list_analyzed = []
+        hash_list_reconstructed = []
 
-            hash_list_analyzed = []
-            hash_list_reconstructed = []
+        for folder in folders:
 
             command_analyzed = "find /mnt/analyzed_fs/" + folder + " -type f -exec sha256sum {} \\;"
             command_reconstructed = "find /mnt/reconstructed_fs/" + folder + " -type f -exec sha256sum {} \\;"
@@ -114,7 +114,7 @@ class VM:
                 i[1] = i[1][len("/mnt/reconstructed_fs/"):]
                 hash_list_reconstructed.append(["0", i[0], i[1]])
 
-            return hash_list_analyzed, hash_list_reconstructed
+        return hash_list_analyzed, hash_list_reconstructed
 
     def popen(self):
         pass
